@@ -1,5 +1,4 @@
-# casinosim1
-
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/README.md b/README.md
 index 35192f5f18507d70aaab5595458b4f1db72675c8..707742f4f8b89e5618b5125c8963fab8d96c87bd 100644
 --- a/README.md
@@ -33,3 +32,6 @@ index 35192f5f18507d70aaab5595458b4f1db72675c8..707742f4f8b89e5618b5125c8963fab8
 +```
 +
 +The simulator expects a JSON basic strategy file. The provided `strategy.json` is a placeholder that stands on all hands.
+ 
+EOF
+)
