@@ -1,3 +1,4 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a//dev/null b/blackjack/strategy.py
 index 0000000000000000000000000000000000000000..b50433546fee04846bebc1d7f47af500860f05db 100644
 --- a//dev/null
@@ -23,3 +24,6 @@ index 0000000000000000000000000000000000000000..b50433546fee04846bebc1d7f47af500
 +    def decide(self, player_cards: Tuple[str, str], dealer_up: str, options: Dict[str, bool]) -> Action:
 +        key = f"{player_cards[0]}{player_cards[1]}_{dealer_up}"
 +        return self.table.get(key, "stand")
+ 
+EOF
+)
