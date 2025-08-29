@@ -1,5 +1,6 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a//dev/null b/blackjack/hand.py
-index 0000000000000000000000000000000000000000..9c4f196ee06779b9a451740661d826bc4868c4ce 100644
+index 0000000000000000000000000000000000000000..0ff67a132760e0a83cf946a8cf3e505c70e9e0fc 100644
 --- a//dev/null
 +++ b/blackjack/hand.py
 @@ -0,0 +1,42 @@
@@ -14,20 +15,20 @@ index 0000000000000000000000000000000000000000..9c4f196ee06779b9a451740661d826bc
 +    bet: float = 0.0
 +    is_split_aces: bool = False
 +    is_split: bool = False
++    surrendered: bool = False
 +
 +    def add_card(self, card: Card) -> None:
 +        self.cards.append(card)
 +
 +    @property
 +    def values(self) -> List[int]:
-+        total = sum(card.value for card in self.cards)
-+        aces = sum(1 for card in self.cards if card.rank == "A")
-+        values = [total]
-+        while total > 21 and aces:
-+            total -= 10
-+            aces -= 1
-+            values.append(total)
-+        return values
++        totals = [0]
++        for card in self.cards:
++            if card.rank == "A":
++                totals = [t + 1 for t in totals] + [t + 11 for t in totals]
++            else:
++                totals = [t + card.value for t in totals]
++        return sorted(set(totals))
 +
 +    @property
 +    def best_value(self) -> int:
@@ -45,3 +46,6 @@ index 0000000000000000000000000000000000000000..9c4f196ee06779b9a451740661d826bc
 +    @property
 +    def can_split(self) -> bool:
 +        return len(self.cards) == 2 and self.cards[0].rank == self.cards[1].rank
+ 
+EOF
+)
