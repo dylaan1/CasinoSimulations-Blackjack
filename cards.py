@@ -1,3 +1,4 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a//dev/null b/blackjack/cards.py
 index 0000000000000000000000000000000000000000..406177235c1fe02221b7aff1d8414c6a7559594b 100644
 --- a//dev/null
@@ -53,4 +54,6 @@ index 0000000000000000000000000000000000000000..406177235c1fe02221b7aff1d8414c6a
 +        used = len(self._discard)
 +        total = self.num_decks * 52
 +        return used / total >= self.penetration
-
+ 
+EOF
+)
