@@ -1,0 +1,15 @@
+from dataclasses import dataclass
+
+@dataclass
+class SimulationSettings:
+    trials: int = 100
+    hands_per_game: int = 100
+    bankroll: float = 1000.0
+    blackjack_payout: float = 1.5
+    double_after_split: bool = True
+    resplit_aces: bool = False
+    num_decks: int = 6
+    hit_soft_17: bool = False
+    penetration: float = 0.75
+    strategy_file: str = "strategy.json"
+    database: str = "simulation.db"
