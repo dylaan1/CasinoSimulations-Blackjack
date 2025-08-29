@@ -1,9 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a//dev/null b/blackjack/main.py
-index 0000000000000000000000000000000000000000..bed455d4f6a281a07ba77310a10c86e631cd210b 100644
+index 0000000000000000000000000000000000000000..6cb8abbab9f78da3e53b80874d941b95e2f2c7a8 100644
 --- a//dev/null
 +++ b/blackjack/main.py
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,39 @@
 +import argparse
 +from .settings import SimulationSettings
 +from .simulator import Simulator
@@ -16,6 +16,7 @@ index 0000000000000000000000000000000000000000..bed455d4f6a281a07ba77310a10c86e6
 +    parser.add_argument("--payout", type=float, default=1.5)
 +    parser.add_argument("--das", action="store_true")
 +    parser.add_argument("--resplit-aces", action="store_true")
++    parser.add_argument("--bet", type=float, default=1.0, help="Base wager per hand")
 +    parser.add_argument("--decks", type=int, default=6)
 +    parser.add_argument("--h17", action="store_true", help="Dealer hits on soft 17")
 +    parser.add_argument("--penetration", type=float, default=0.75)
@@ -28,6 +29,7 @@ index 0000000000000000000000000000000000000000..bed455d4f6a281a07ba77310a10c86e6
 +                              blackjack_payout=args.payout,
 +                              double_after_split=args.das,
 +                              resplit_aces=args.resplit_aces,
++                              bet_amount=args.bet,
 +                              num_decks=args.decks,
 +                              hit_soft_17=args.h17,
 +                              penetration=args.penetration,
