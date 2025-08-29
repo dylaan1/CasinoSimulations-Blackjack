@@ -1,3 +1,4 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a//dev/null b/blackjack/settings.py
 index 0000000000000000000000000000000000000000..710016b8ebca5877f4fb14cf4f4e570c326ac6f7 100644
 --- a//dev/null
@@ -18,3 +19,6 @@ index 0000000000000000000000000000000000000000..710016b8ebca5877f4fb14cf4f4e570c
 +    penetration: float = 0.75
 +    strategy_file: str = "strategy.json"
 +    database: str = "simulation.db"
+ 
+EOF
+)
