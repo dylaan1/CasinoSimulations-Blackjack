@@ -1,8 +1,9 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a//dev/null b/blackjack/player.py
-index 0000000000000000000000000000000000000000..3542d978d2a4f38b009270f9c330c52ec83a8263 100644
+index 0000000000000000000000000000000000000000..0c2c28108dc0ec983f35b6cc8969888ff26b250d 100644
 --- a//dev/null
 +++ b/blackjack/player.py
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,71 @@
 +from __future__ import annotations
 +from dataclasses import dataclass
 +from typing import List
@@ -45,6 +46,7 @@ index 0000000000000000000000000000000000000000..3542d978d2a4f38b009270f9c330c52e
 +            "can_surrender": True,
 +        })
 +        if action == "surrender":
++            hand.surrendered = True
 +            hand.bet /= 2
 +            return
 +        while True:
@@ -73,3 +75,6 @@ index 0000000000000000000000000000000000000000..3542d978d2a4f38b009270f9c330c52e
 +                    hands.append(new_hand)
 +                    continue
 +            hand.add_card(shoe.draw())
+ 
+EOF
+)
