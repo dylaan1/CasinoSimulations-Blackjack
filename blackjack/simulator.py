@@ -48,6 +48,8 @@ class Simulator:
         self.conn.close()
 
     def resolve_hand(self, hand, dealer_hand, settings: PlayerSettings) -> float:
+        if hand.surrendered:
+            return -hand.bet
         if hand.bet == 0:
             return 0
         if hand.is_bust:

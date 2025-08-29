@@ -40,6 +40,7 @@ class Player:
             "can_surrender": True,
         })
         if action == "surrender":
+            hand.surrendered = True
             hand.bet /= 2
             return
         while True:

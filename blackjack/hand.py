@@ -9,20 +9,20 @@ class Hand:
     bet: float = 0.0
     is_split_aces: bool = False
     is_split: bool = False
+    surrendered: bool = False
 
     def add_card(self, card: Card) -> None:
         self.cards.append(card)
 
     @property
     def values(self) -> List[int]:
-        total = sum(card.value for card in self.cards)
-        aces = sum(1 for card in self.cards if card.rank == "A")
-        values = [total]
-        while total > 21 and aces:
-            total -= 10
-            aces -= 1
-            values.append(total)
-        return values
+        totals = [0]
+        for card in self.cards:
+            if card.rank == "A":
+                totals = [t + 1 for t in totals] + [t + 11 for t in totals]
+            else:
+                totals = [t + card.value for t in totals]
+        return sorted(set(totals))
 
     @property
     def best_value(self) -> int:

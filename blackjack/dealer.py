@@ -13,7 +13,7 @@ class Dealer:
         hand.add_card(shoe.draw())
         while True:
             value = hand.best_value
-            soft = value in hand.values[:-1]
+            soft = len(hand.values) > 1 and value != min(hand.values)
             if value < 17 or (value == 17 and soft and self.hit_soft_17):
                 hand.add_card(shoe.draw())
                 continue
