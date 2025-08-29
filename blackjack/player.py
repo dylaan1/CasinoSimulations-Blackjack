@@ -28,7 +28,11 @@ class Player:
         return hands
 
     def _play_hand(self, hand: Hand, shoe: Shoe, dealer_up: str, hands: List[Hand]) -> None:
-        # Surrender decision
+        # Split aces receive only one card when re-splitting is disabled
+        if hand.is_split_aces and not self.settings.resplit_aces and len(hand.cards) >= 2:
+            return
+
+        # Initial surrender decision
         can_double = not hand.is_split or self.settings.double_after_split
         action = self.strategy.decide(hand, dealer_up, {
             "can_double": can_double and not hand.is_split_aces,
@@ -41,8 +45,6 @@ class Player:
             return
         while True:
             if hand.is_blackjack or hand.is_bust:
-                return
-            if hand.is_split_aces and len(hand.cards) == 2 and hand.cards[1].rank != "A":
                 return
             can_double = (len(hand.cards) == 2 and (not hand.is_split or self.settings.double_after_split) and not hand.is_split_aces)
             action = self.strategy.decide(hand, dealer_up, {
@@ -62,7 +64,16 @@ class Player:
                 if rank == "A":
                     ace_hands = sum(1 for h in hands if h.is_split_aces)
                     if hand.is_split_aces and (not self.settings.resplit_aces or ace_hands >= 4):
-                        action = "hit"
+                        alt = self.strategy.decide(hand, dealer_up, {
+                            "can_double": False,
+                            "can_split": False,
+                            "can_surrender": False,
+                        })
+                        if alt == "stand":
+                            return
+        
+                        hand.add_card(shoe.draw())
+                        continue
                     else:
                         self.settings.bankroll -= hand.bet
                         new_hand = Hand(cards=[hand.cards.pop()], bet=hand.bet, is_split_aces=True, is_split=True)
