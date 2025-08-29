@@ -1,3 +1,4 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a//dev/null b/blackjack/main.py
 index 0000000000000000000000000000000000000000..bed455d4f6a281a07ba77310a10c86e631cd210b 100644
 --- a//dev/null
@@ -40,3 +41,6 @@ index 0000000000000000000000000000000000000000..bed455d4f6a281a07ba77310a10c86e6
 +
 +if __name__ == "__main__":
 +    main()
+ 
+EOF
+)
