@@ -1,9 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a//dev/null b/blackjack/cards.py
-index 0000000000000000000000000000000000000000..406177235c1fe02221b7aff1d8414c6a7559594b 100644
+index 0000000000000000000000000000000000000000..31f7f94e30ed4c844be69e28839b6d27ba00b0c4 100644
 --- a//dev/null
 +++ b/blackjack/cards.py
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,48 @@
 +from __future__ import annotations
 +from dataclasses import dataclass, field
 +from typing import List
@@ -42,8 +42,6 @@ index 0000000000000000000000000000000000000000..406177235c1fe02221b7aff1d8414c6a
 +        self._discard.clear()
 +
 +    def draw(self) -> Card:
-+        if self.penetration_reached:
-+            self.shuffle()
 +        card = self._cards.pop()
 +        self._discard.append(card)
 +        self.drawn_counts[card.rank] += 1
