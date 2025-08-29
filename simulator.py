@@ -1,8 +1,9 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a//dev/null b/blackjack/simulator.py
-index 0000000000000000000000000000000000000000..d6149792df790230218a96824ba509cea520098d 100644
+index 0000000000000000000000000000000000000000..2468238c14cb29ec1e0fe5be3176943108fac45a 100644
 --- a//dev/null
 +++ b/blackjack/simulator.py
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,70 @@
 +from __future__ import annotations
 +import sqlite3
 +from dataclasses import asdict
@@ -53,6 +54,8 @@ index 0000000000000000000000000000000000000000..d6149792df790230218a96824ba509ce
 +        self.conn.close()
 +
 +    def resolve_hand(self, hand, dealer_hand, settings: PlayerSettings) -> float:
++        if hand.surrendered:
++            return -hand.bet
 +        if hand.bet == 0:
 +            return 0
 +        if hand.is_bust:
@@ -71,3 +74,6 @@ index 0000000000000000000000000000000000000000..d6149792df790230218a96824ba509ce
 +        if player_value < dealer_value:
 +            return -hand.bet
 +        return 0
+ 
+EOF
+)
