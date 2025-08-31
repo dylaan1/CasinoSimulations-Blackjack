@@ -37,3 +37,30 @@ def test_no_extra_card_when_resplit_disabled():
     assert all(len(h.cards) == 2 for h in hands)
     # only two cards should be drawn from the shoe (for the split)
     assert len(shoe.drawn) == 2
+
+class SplitThenDoubleStrategy:
+    def __init__(self):
+        self.calls = 0
+    def decide(self, hand, dealer_up, options):
+        self.calls += 1
+        if options.get("can_split") and hand.can_split:
+            return "split"
+        return "double"
+
+
+def test_split_aces_prevent_double_attempt():
+    initial = Hand(cards=[Card('A', 'spades'), Card('A', 'hearts')], bet=1.0)
+    shoe = MockShoe([
+        Card('2', 'clubs'),
+        Card('3', 'diamonds'),
+        Card('9', 'hearts'),  # extra card if double were allowed
+    ])
+    strat = SplitThenDoubleStrategy()
+    player = Player(
+        settings=PlayerSettings(bankroll=100, resplit_aces=False, double_after_split=True),
+        strategy=strat,
+    )
+    hands = player.play(shoe, dealer_up='5', initial=initial)
+    assert all(len(h.cards) == 2 for h in hands)
+    assert len(shoe.drawn) == 2
+    assert player.settings.bankroll == 99
