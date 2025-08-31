@@ -1,10 +1,5 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a//dev/null b/strategy.json
-index 0000000000000000000000000000000000000000..0967ef424bce6791893e9a57bb952f80fd536e93 100644
---- a//dev/null
-+++ b/strategy.json
-@@ -0,0 +1 @@
-+{}
- 
-EOF
-)
+{
+  "hard": {},
+  "soft": {},
+  "pair": {}
+}
