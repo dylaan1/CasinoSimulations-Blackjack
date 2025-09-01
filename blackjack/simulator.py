@@ -1,6 +1,5 @@
 from __future__ import annotations
 import sqlite3
-from dataclasses import asdict
 from .settings import SimulationSettings
 from .cards import Shoe
 from .player import Player, PlayerSettings
