@@ -1,31 +1,80 @@
 # Blackjack Simulator
 
-This project provides a configurable blackjack simulator for collecting statistics on player survival and card distributions.
+A modular blackjack simulation engine for exploring different strategies and casino rules.
 
 ## Features
-- Modular number of decks.
-- Dealer hits or stands on soft 17.
-- Penetration-based shoe with automatic shuffle.
-- Optional double after split and re-split aces.
-- Surrender allowed before any action.
-- Results stored in SQLite for post-processing.
-- R script to generate line graphs of bankroll and card distributions.
+
+- **Modular architecture**
+  - `cards` – card objects and a shoe that reshuffles on a configurable penetration.
+  - `hand` – hand totals, soft/hard transitions, and split tracking.
+  - `player` – bankroll bookkeeping and decision logic for hits, stands, doubles, splits, and surrender.
+  - `dealer` – dealer behavior with optional hit-soft-17.
+  - `strategy` – JSON-driven basic strategy matrix.
+  - `simulator` – orchestrates games, records bankroll and card distributions, and writes results to SQLite.
+
+- **Configurable rules via `SimulationSettings`**
+  - Number of decks and shoe penetration.
+  - Dealer hits or stands on soft 17.
+  - Double after split toggle.
+  - Resplitting aces limit.
+  - Early surrender.
+  - Blackjack payout ratio.
+  - Per-hand bet amount and initial bankroll.
+
+- **Strategy plug-ins**: point to any JSON basic strategy file; each defines `hard`, `soft`, and `pair` tables mapping player totals and dealer up-cards to actions.
+
+- **Data output**: bankroll history, final summaries, and card distributions stored in SQLite for downstream analysis (e.g., with the included R script).
+
+- **GUI**: a Tkinter interface lets you configure rules, run simulations, visualize bankroll progression, and optionally save or discard results stored in SQLite.
+
+- **Quality checks**: unit tests cover soft-hand transitions, surrender payouts, split-ace restrictions, and bankroll updates after doubles/splits; GitHub Actions runs the test suite on each push or pull request.
 
 ## Usage
-Run simulations via the CLI:
 
 ```bash
-python -m blackjack.main --trials 10 --hands 50 --bankroll 500 --payout 1.5 --decks 6 --penetration 0.75 --strategy strategy.json --database simulation.db
+python -m blackjack.main \
+    --trials 10 \
+    --hands 50 \
+    --bankroll 500 \
+    --payout 1.5 \
+    --decks 6 \
+    --penetration 0.75 \
+    --hit-soft-17 \
+    --double-after-split \
+    --resplit-aces \
+    --strategy strategy.json \
+    --database simulation.db
 ```
 
-After running, create graphs with R:
+### Graphical interface
+
+From source:
+
+```bash
+python -m blackjack
+```
+
+After installing with `pip install .`, a `blackjack-sim` application launcher is
+registered.  You can create a desktop shortcut to this script so that the GUI
+opens like any other native app.
+
+```bash
+pip install .
+blackjack-sim  # runs without a console window
+```
+
+### Visualization
 
 ```bash
 Rscript analysis.R simulation.db
 ```
 
-The simulator expects a JSON basic strategy file.  The file contains three
-objects – `hard`, `soft` and `pair` – each mapping the player's total (or pair
-rank) and the dealer's up card to an action (`hit`, `stand`, `double`, `split`
-or `surrender`).  The provided `strategy.json` is a minimal placeholder that
-stands on all hands.
+The simulator expects `strategy.json` to contain three top-level objects: `hard`, `soft`, and `pair`. Each maps player totals (or pair ranks) and dealer up-cards to recommended actions (`hit`, `stand`, `double`, `split`, `surrender`).
+
+## Testing
+
+```bash
+pytest
+```
+
+GitHub Actions automatically executes the same tests on every push and pull request.
