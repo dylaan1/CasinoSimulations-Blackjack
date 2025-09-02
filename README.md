@@ -25,7 +25,7 @@ A modular blackjack simulation engine for exploring different strategies and cas
 
 - **Data output**: bankroll history, final summaries, and card distributions stored in SQLite for downstream analysis (e.g., with the included R script).
 
-- **GUI**: a Tkinter interface lets you configure rules, run simulations, visualize bankroll progression, and optionally save or discard results stored in SQLite.
+- **GUI**: a Tkinter interface lets you configure rules, run simulations, visualize bankroll progression for any trial via a "Plot Trial" selector, and optionally save or discard results stored in SQLite.
 
 - **Quality checks**: unit tests cover soft-hand transitions, surrender payouts, split-ace restrictions, and bankroll updates after doubles/splits; GitHub Actions runs the test suite on each push or pull request.
 
