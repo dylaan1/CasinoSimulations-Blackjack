@@ -2,7 +2,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict
 import json
-from .hand import Hand
+try:  # pragma: no cover - fallback for direct execution
+    from .hand import Hand
+except ImportError:  # pragma: no cover
+    from hand import Hand  # type: ignore
 
 Action = str  # 'hit', 'stand', 'double', 'split', 'surrender'
 
@@ -23,17 +26,25 @@ class BasicStrategy:
     pair: Dict[str, Dict[str, Action]] = field(default_factory=dict)
 
     @classmethod
-    def from_json(cls, path: str) -> "BasicStrategy":  # pragma: no cover - CLI helper
+    def from_json(cls, path: str, allow_surrender: bool = True) -> "BasicStrategy":  # pragma: no cover - CLI helper
         """Create a strategy instance from ``path``.
 
         Missing sections in the JSON default to empty dictionaries which
         effectively cause the strategy to stand on every hand.
+        ``allow_surrender`` replaces any "surrender" recommendations with
+        "hit" when set to ``False``.
         """
         with open(path, "r", encoding="utf8") as f:
             data = json.load(f)
         hard = {int(k): v for k, v in data.get("hard", {}).items()}
         soft = {int(k): v for k, v in data.get("soft", {}).items()}
         pair = data.get("pair") or data.get("split") or {}
+        if not allow_surrender:
+            for table in (hard, soft, pair):
+                for row in table.values():
+                    for dealer, action in list(row.items()):
+                        if action == "surrender":
+                            row[dealer] = "hit"
         return cls(hard=hard, soft=soft, pair=pair)
 
     def _lookup(self, table: Dict, key, dealer_up: str) -> Action | None:

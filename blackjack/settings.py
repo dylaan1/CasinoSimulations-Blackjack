@@ -12,6 +12,7 @@ class SimulationSettings:
     blackjack_payout: float = 1.5
     double_after_split: bool = True
     resplit_aces: bool = False
+    allow_surrender: bool = True
     bet_amount: float = 1.0
     num_decks: int = 6
     hit_soft_17: bool = False
