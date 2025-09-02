@@ -34,8 +34,25 @@ class Shoe:
         self._cards = [Card(rank, suit) for rank in RANKS for suit in SUITS] * self.num_decks
         random.shuffle(self._cards)
         self._discard.clear()
+        # Reset counts of drawn cards on shuffle
+        self.drawn_counts = {rank: 0 for rank in RANKS}
 
     def draw(self) -> Card:
+        """Draw a card from the shoe.
+
+        If the shoe is empty, reshuffle the discard pile. If there are still
+        no cards available after reshuffling (e.g., the shoe was initialized
+        with zero decks), a descriptive exception is raised instead of the
+        default ``IndexError``.
+        """
+
+        if not self._cards:
+            # Try to reshuffle the shoe when out of cards.
+            self.shuffle()
+            if not self._cards:
+                # After reshuffling there are still no cards available
+                raise RuntimeError("Cannot draw from an empty shoe")
+
         card = self._cards.pop()
         self._discard.append(card)
         self.drawn_counts[card.rank] += 1
