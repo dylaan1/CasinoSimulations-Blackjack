@@ -11,6 +11,7 @@ class PlayerSettings:
     blackjack_payout: float = 1.5
     double_after_split: bool = True
     resplit_aces: bool = False
+    allow_surrender: bool = True
     bet_amount: float = 1.0  # base wager per hand
 
 @dataclass
@@ -33,7 +34,7 @@ class Player:
         action = self.strategy.decide(hand, dealer_up, {
             "can_double": can_double and not hand.is_split_aces,
             "can_split": hand.can_split,
-            "can_surrender": not hand.is_split,
+            "can_surrender": self.settings.allow_surrender and not hand.is_split,
         })
         if action == "surrender":
             hand.surrendered = True
