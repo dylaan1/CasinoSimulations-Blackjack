@@ -60,7 +60,7 @@ class SimulatorGUI:
         tk.Checkbutton(controls, text="RSA", variable=self.rsa).grid(row=2, column=3)
 
         tk.Label(controls, text="Strategy").grid(row=3, column=0)
-        self.strategy_file = tk.StringVar(value="strategy.json")
+        self.strategy_file = tk.StringVar(value="BJ_basicStrategy.json")
         ttk.Entry(controls, textvariable=self.strategy_file).grid(row=3, column=1)
 
         tk.Label(controls, text="Database").grid(row=3, column=2)

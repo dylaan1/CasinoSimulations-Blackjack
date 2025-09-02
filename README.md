@@ -42,7 +42,7 @@ python -m blackjack.main \
     --hit-soft-17 \
     --double-after-split \
     --resplit-aces \
-    --strategy strategy.json \
+    --strategy BJ_basicStrategy.json \
     --database simulation.db \
     --seed 42
 
@@ -72,7 +72,7 @@ blackjack-sim  # runs without a console window
 Rscript analysis.R simulation.db
 ```
 
-The simulator expects `strategy.json` to contain three top-level objects: `hard`, `soft`, and `pair`. Each maps player totals (or pair ranks) and dealer up-cards to recommended actions (`hit`, `stand`, `double`, `split`, `surrender`).
+The simulator expects `BJ_basicStrategy.json` to contain three top-level objects: `hard`, `soft`, and `pair`. Each maps player totals (or pair ranks) and dealer up-cards to recommended actions (`hit`, `stand`, `double`, `split`, `surrender`).
 
 ## Testing
 
