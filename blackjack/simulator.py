@@ -220,6 +220,8 @@ class Simulator:
 
     def save_results(self) -> None:
         """Persist temporary tables into permanent storage."""
+        if self.settings.test_mode:
+            raise RuntimeError("Cannot save results while in test mode")
         cur = self.conn.cursor()
         for permanent, temp in TABLE_PAIRS:
             cur.execute(f"INSERT INTO {permanent} SELECT * FROM {temp}")
