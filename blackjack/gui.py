@@ -71,6 +71,10 @@ class SimulatorGUI:
         self.penetration = tk.DoubleVar(value=0.75)
         tk.Spinbox(controls, from_=0.1, to=1.0, increment=0.05, textvariable=self.penetration).grid(row=3, column=5)
 
+        tk.Label(controls, text="Seed").grid(row=4, column=0)
+        self.seed = tk.StringVar()
+        ttk.Entry(controls, textvariable=self.seed).grid(row=4, column=1)
+
         tk.Button(controls, text="Run", command=self.run_simulation).grid(row=2, column=4)
         self.save_btn = tk.Button(controls, text="Save", command=self.save_results, state=tk.DISABLED)
         self.save_btn.grid(row=2, column=5)
@@ -93,6 +97,7 @@ class SimulatorGUI:
             penetration=float(self.penetration.get()),
             strategy_file=self.strategy_file.get(),
             database=self.database.get(),
+            seed=int(self.seed.get()) if self.seed.get() else None,
         )
         self.sim = Simulator(settings)
         self.sim.run()

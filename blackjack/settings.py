@@ -14,3 +14,4 @@ class SimulationSettings:
     penetration: float = 0.75
     strategy_file: str = "strategy.json"
     database: str = "simulation.db"
+    seed: int | None = None
