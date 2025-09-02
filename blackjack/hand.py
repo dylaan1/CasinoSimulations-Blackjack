@@ -1,10 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
-try:  # pragma: no cover - fallback for direct execution
-    from .cards import Card
-except ImportError:  # pragma: no cover
-    from cards import Card  # type: ignore
+
+from .cards import Card
 
 @dataclass
 class Hand:

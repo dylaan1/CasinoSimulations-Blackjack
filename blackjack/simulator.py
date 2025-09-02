@@ -2,34 +2,14 @@ from __future__ import annotations
 import sqlite3
 import random
 from dataclasses import asdict
-from importlib import import_module
 from typing import List
 
-
-def _import(name: str):
-    """Import ``name`` relative to this package, falling back to absolute."""
-    try:
-        return import_module(f".{name}", __package__)
-    except ImportError:
-        return import_module(name)
-
-
-# Load modules with graceful fallback for standalone execution
-settings = _import("settings")
-cards = _import("cards")
-player = _import("player")
-dealer = _import("dealer")
-strategy = _import("strategy")
-hand = _import("hand")
-
-SimulationSettings = settings.SimulationSettings
-Shoe = cards.Shoe
-Player = player.Player
-PlayerSettings = player.PlayerSettings
-Dealer = dealer.Dealer
-BasicStrategy = strategy.BasicStrategy
-Hand = hand.Hand
-Card = cards.Card
+from .settings import SimulationSettings
+from .cards import Shoe, Card
+from .player import Player, PlayerSettings
+from .dealer import Dealer
+from .strategy import BasicStrategy
+from .hand import Hand
 
 
 class Simulator:

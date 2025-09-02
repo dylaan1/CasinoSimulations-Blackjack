@@ -1,20 +1,9 @@
-
-try:  # pragma: no cover - fallback for direct execution
-    from .gui import SimulatorGUI
-except ImportError:  # pragma: no cover
-    from gui import SimulatorGUI  # type: ignore
-
 import argparse
 from pathlib import Path
 
-try:  # pragma: no cover - fallback for direct execution
-    from .gui import SimulatorGUI
-    from .settings import SimulationSettings, DEFAULT_STRATEGY_FILE
-    from .simulator import Simulator
-except ImportError:  # pragma: no cover
-    from gui import SimulatorGUI  # type: ignore
-    from settings import SimulationSettings, DEFAULT_STRATEGY_FILE  # type: ignore
-    from simulator import Simulator  # type: ignore
+from .gui import SimulatorGUI
+from .settings import SimulationSettings, DEFAULT_STRATEGY_FILE
+from .simulator import Simulator
 
 
 def parse_args() -> tuple[SimulationSettings, bool]:
