@@ -1,11 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
-try:  # pragma: no cover - fallback for direct execution
-    from .cards import Shoe
-    from .hand import Hand
-except ImportError:  # pragma: no cover
-    from cards import Shoe  # type: ignore
-    from hand import Hand  # type: ignore
+
+from .cards import Shoe
+from .hand import Hand
 
 @dataclass
 class Dealer:
