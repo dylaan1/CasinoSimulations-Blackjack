@@ -59,6 +59,18 @@ class SimulatorGUI:
         self.rsa = tk.BooleanVar()
         tk.Checkbutton(controls, text="RSA", variable=self.rsa).grid(row=2, column=3)
 
+        tk.Label(controls, text="Strategy").grid(row=3, column=0)
+        self.strategy_file = tk.StringVar(value="strategy.json")
+        ttk.Entry(controls, textvariable=self.strategy_file).grid(row=3, column=1)
+
+        tk.Label(controls, text="Database").grid(row=3, column=2)
+        self.database = tk.StringVar(value="simulation.db")
+        ttk.Entry(controls, textvariable=self.database).grid(row=3, column=3)
+
+        tk.Label(controls, text="Penetration").grid(row=3, column=4)
+        self.penetration = tk.DoubleVar(value=0.75)
+        tk.Spinbox(controls, from_=0.1, to=1.0, increment=0.05, textvariable=self.penetration).grid(row=3, column=5)
+
         tk.Button(controls, text="Run", command=self.run_simulation).grid(row=2, column=4)
         self.save_btn = tk.Button(controls, text="Save", command=self.save_results, state=tk.DISABLED)
         self.save_btn.grid(row=2, column=5)
@@ -66,6 +78,8 @@ class SimulatorGUI:
         self.discard_btn.grid(row=2, column=6)
 
     def run_simulation(self):
+        if self.sim:
+            self.sim.close()
         settings = SimulationSettings(
             trials=self.trials.get(),
             hands_per_game=self.hands.get(),
@@ -76,9 +90,9 @@ class SimulatorGUI:
             bet_amount=float(self.bet.get()),
             num_decks=self.decks.get(),
             hit_soft_17=self.dealer.get() == "H17",
-            penetration=0.75,
-            strategy_file="strategy.json",
-            database="simulation.db",
+            penetration=float(self.penetration.get()),
+            strategy_file=self.strategy_file.get(),
+            database=self.database.get(),
         )
         self.sim = Simulator(settings)
         self.sim.run()
