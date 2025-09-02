@@ -12,4 +12,6 @@ dependencies = [
 ]
 
 [project.gui-scripts]
-blackjack-sim = "blackjack.__main__:main"
+blackjack-sim = "blackjack.__main__:run_gui"
+[project.scripts]
+blackjack-cli = "blackjack.main:run_cli"

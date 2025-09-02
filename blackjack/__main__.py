@@ -1,8 +1,10 @@
 from .gui import SimulatorGUI
 
-def main():
+
+def run_gui():
     gui = SimulatorGUI()
     gui.run()
 
+
 if __name__ == "__main__":
-    main()
+    run_gui()
