@@ -88,10 +88,7 @@ class SimulatorGUI:
         tk.Label(frame, text="Trials").grid(row=0, column=2, sticky="e")
         tk.Entry(frame, textvariable=self.trials).grid(row=0, column=3)
 
-        tk.Label(frame, text="Hands").grid(row=1, column=0, sticky="e")
-
         tk.Label(frame, text="Hands/Trial").grid(row=1, column=0, sticky="e")
-
         tk.Spinbox(frame, from_=1, to=6, textvariable=self.hands, width=5).grid(row=1, column=1)
         tk.Label(frame, text="Bet").grid(row=1, column=2, sticky="e")
         tk.Spinbox(frame, from_=1, to=1000, textvariable=self.bet, width=5).grid(row=1, column=3)
