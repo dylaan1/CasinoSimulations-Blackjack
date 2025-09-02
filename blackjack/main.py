@@ -18,6 +18,7 @@ def parse_args() -> tuple[SimulationSettings, bool]:
     parser.add_argument("--penetration", type=float, default=0.75)
     parser.add_argument("--strategy", type=str, default="strategy.json")
     parser.add_argument("--database", type=str, default="simulation.db")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed")
     parser.add_argument("--no-save", action="store_true", help="Do not save simulation results")
     args = parser.parse_args()
     if not Path(args.strategy).is_file():
@@ -35,6 +36,7 @@ def parse_args() -> tuple[SimulationSettings, bool]:
         penetration=args.penetration,
         strategy_file=args.strategy,
         database=args.database,
+        seed=args.seed,
     )
     return settings, args.no_save
 

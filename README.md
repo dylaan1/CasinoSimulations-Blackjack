@@ -43,7 +43,8 @@ python -m blackjack.main \
     --double-after-split \
     --resplit-aces \
     --strategy strategy.json \
-    --database simulation.db
+    --database simulation.db \
+    --seed 42
 
 ```
 

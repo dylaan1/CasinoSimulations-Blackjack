@@ -1,5 +1,6 @@
 from __future__ import annotations
 import sqlite3
+import random
 
 from dataclasses import asdict
 
@@ -46,6 +47,8 @@ class Simulator:
         self.conn.commit()
 
     def run(self) -> None:
+        if self.settings.seed is not None:
+            random.seed(self.settings.seed)
         strat = BasicStrategy.from_json(self.settings.strategy_file)
         for trial in range(1, self.settings.trials + 1):
             shoe = Shoe(self.settings.num_decks, penetration=self.settings.penetration)
