@@ -1,7 +1,11 @@
 from __future__ import annotations
 import sqlite3
 import random
+
 from dataclasses import asdict
+
+from importlib import import_module
+
 from typing import List
 
 from .settings import SimulationSettings
@@ -83,10 +87,6 @@ class Simulator:
             )
             """
         )
-
-        cur.execute("CREATE TABLE IF NOT EXISTS bankroll (trial INTEGER, hand INTEGER, bankroll REAL)")
-        cur.execute("CREATE TABLE IF NOT EXISTS summary (trial INTEGER, hands_played INTEGER, bankroll REAL)")
-        cur.execute("CREATE TABLE IF NOT EXISTS card_distribution (trial INTEGER, card TEXT, count INTEGER)")
 
         self.conn.commit()
 
