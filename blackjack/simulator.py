@@ -118,16 +118,6 @@ class Simulator:
         self.conn.commit()
 
     def close(self) -> None:
-
-                cur.execute("INSERT INTO bankroll VALUES (?,?,?)", (trial, hands_played, player_settings.bankroll))
-            cur.execute(
-                "INSERT INTO summary VALUES (?,?,?)",
-                (trial, hands_played, player_settings.bankroll),
-            )
-            for card, count in shoe.drawn_counts.items():
-                cur.execute("INSERT INTO card_distribution VALUES (?,?,?)", (trial, card, count))
-            self.conn.commit()
-
         self.conn.close()
 
     def resolve_hand(self, hand, dealer_hand, settings: PlayerSettings) -> float:
