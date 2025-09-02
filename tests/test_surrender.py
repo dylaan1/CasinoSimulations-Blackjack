@@ -44,3 +44,29 @@ def test_surrender_payout_returns_half_bet():
     payout = resolve(hand, dealer_hand)
     settings.bankroll += payout
     assert settings.bankroll == 95
+
+
+class CountingShoe:
+    def __init__(self):
+        self.count = 0
+
+    def draw(self):
+        self.count += 1
+        return Card('2', 'hearts')
+
+
+class OptionAwareStrategy:
+    def decide(self, hand, dealer_up, options):
+        return 'surrender' if options.get('can_surrender') else 'hit'
+
+
+def test_no_surrender_hits_when_disabled():
+    settings = PlayerSettings(bankroll=100, allow_surrender=False)
+    bet = 10
+    settings.bankroll -= bet
+    initial = Hand(cards=[Card('9', 'spades'), Card('7', 'hearts')], bet=bet)
+    shoe = CountingShoe()
+    player = Player(settings=settings, strategy=OptionAwareStrategy())
+    hands = player.play(shoe, dealer_up='9', initial=initial)
+    hand = hands[0]
+    assert not hand.surrendered

@@ -49,7 +49,7 @@ class Simulator:
     def run(self) -> None:
         if self.settings.seed is not None:
             random.seed(self.settings.seed)
-        strat = BasicStrategy.from_json(self.settings.strategy_file)
+        strat = BasicStrategy.from_json(self.settings.strategy_file, allow_surrender=self.settings.allow_surrender)
         for trial in range(1, self.settings.trials + 1):
             shoe = Shoe(self.settings.num_decks, penetration=self.settings.penetration)
             player_settings = PlayerSettings(
@@ -57,6 +57,7 @@ class Simulator:
                 blackjack_payout=self.settings.blackjack_payout,
                 double_after_split=self.settings.double_after_split,
                 resplit_aces=self.settings.resplit_aces,
+                allow_surrender=self.settings.allow_surrender,
                 bet_amount=self.settings.bet_amount,
             )
             player = Player(player_settings, strat)
