@@ -77,6 +77,17 @@ class SimulatorGUI:
         self.discard_btn = tk.Button(controls, text="Discard", command=self.discard_results, state=tk.DISABLED)
         self.discard_btn.grid(row=2, column=6)
 
+        tk.Label(controls, text="Plot Trial").grid(row=4, column=0)
+        self.plot_trial = tk.IntVar(value=1)
+        self.plot_trial_spin = tk.Spinbox(
+            controls,
+            from_=1,
+            to=1,
+            textvariable=self.plot_trial,
+            command=self.update_graph,
+        )
+        self.plot_trial_spin.grid(row=4, column=1)
+
     def run_simulation(self):
         if self.sim:
             self.sim.close()
@@ -96,21 +107,29 @@ class SimulatorGUI:
         )
         self.sim = Simulator(settings)
         self.sim.run()
+        self.plot_trial_spin.config(to=self.trials.get())
+        self.plot_trial.set(1)
         self.update_graph()
         self.save_btn.config(state=tk.NORMAL)
         self.discard_btn.config(state=tk.NORMAL)
 
     def update_graph(self):
+        if not self.sim:
+            return
+        trial = self.plot_trial.get()
         cur = self.sim.conn.cursor()
-        cur.execute("SELECT hand, bankroll FROM temp_bankroll ORDER BY hand")
+        cur.execute(
+            "SELECT hand, bankroll FROM temp_bankroll WHERE trial=? ORDER BY hand",
+            (trial,),
+        )
         data = cur.fetchall()
         if not data:
             return
         hands, bankrolls = zip(*data)
         self.ax.clear()
-        self.ax.set_xlabel("Hands Played")
+        self.ax.set_xlabel(f"Cumulative Hands Played (Trial {trial})")
         self.ax.set_ylabel("Bankroll")
-        self.ax.set_xlim(0, max(hands))
+        self.ax.set_xlim(1, max(hands))
         self.ax.set_ylim(0, max(bankrolls) * 1.1)
         self.ax.plot(hands, bankrolls)
         self.canvas.draw()
