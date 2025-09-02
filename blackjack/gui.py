@@ -123,6 +123,8 @@ class SimulatorGUI:
     def save_results(self):
         if self.sim:
             self.sim.save_results()
+            self.sim.close()
+            self.sim = None
             messagebox.showinfo("Saved", "Results saved")
             self.save_btn.config(state=tk.DISABLED)
             self.discard_btn.config(state=tk.DISABLED)
@@ -130,6 +132,8 @@ class SimulatorGUI:
     def discard_results(self):
         if self.sim:
             self.sim.discard_results()
+            self.sim.close()
+            self.sim = None
             messagebox.showinfo("Discarded", "Results discarded")
             self.save_btn.config(state=tk.DISABLED)
             self.discard_btn.config(state=tk.DISABLED)
