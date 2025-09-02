@@ -1,8 +1,10 @@
 import argparse
+from pathlib import Path
+
 from .settings import SimulationSettings
 from .simulator import Simulator
 
-def parse_args() -> SimulationSettings:
+def parse_args() -> tuple[SimulationSettings, bool]:
     parser = argparse.ArgumentParser(description="Blackjack simulator")
     parser.add_argument("--trials", type=int, default=100)
     parser.add_argument("--hands", type=int, default=100)
@@ -16,8 +18,11 @@ def parse_args() -> SimulationSettings:
     parser.add_argument("--penetration", type=float, default=0.75)
     parser.add_argument("--strategy", type=str, default="strategy.json")
     parser.add_argument("--database", type=str, default="simulation.db")
+    parser.add_argument("--no-save", action="store_true", help="Do not save simulation results")
     args = parser.parse_args()
-    return SimulationSettings(
+    if not Path(args.strategy).is_file():
+        parser.error(f"Strategy file '{args.strategy}' not found.")
+    settings = SimulationSettings(
         trials=args.trials,
         hands_per_game=args.hands,
         bankroll=args.bankroll,
@@ -31,20 +36,22 @@ def parse_args() -> SimulationSettings:
         strategy_file=args.strategy,
         database=args.database,
     )
+    return settings, args.no_save
 
 
 def run_cli():
-    settings = parse_args()
+    settings, no_save = parse_args()
     sim = Simulator(settings)
     sim.run()
-    sim.save_results()
+    if not no_save:
+        sim.save_results()
     sim.close()
 
 if __name__ == "__main__":
     run_cli()
 
 def main():
-    settings = parse_args()
+    settings, _ = parse_args()
     sim = Simulator(settings)
     sim.run()
 
