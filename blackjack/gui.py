@@ -2,8 +2,13 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from .settings import SimulationSettings
-from .simulator import Simulator
+
+try:  # pragma: no cover - fallback for direct execution
+    from .settings import SimulationSettings
+    from .simulator import Simulator
+except ImportError:  # pragma: no cover
+    from settings import SimulationSettings  # type: ignore
+    from simulator import Simulator  # type: ignore
 
 
 class SimulatorGUI:
@@ -11,6 +16,23 @@ class SimulatorGUI:
         self.root = tk.Tk()
         self.root.title("Blackjack Simulator")
         self.sim = None
+
+        # simulation setting variables
+        self.bankroll = tk.DoubleVar(value=1000)
+        self.trials = tk.IntVar(value=1)
+        self.hands = tk.IntVar(value=6)
+        self.bet = tk.DoubleVar(value=10)
+        self.decks = tk.IntVar(value=6)
+        self.payout = tk.StringVar(value="3:2")
+        self.dealer = tk.StringVar(value="H17")
+        self.das = tk.BooleanVar()
+        self.rsa = tk.BooleanVar()
+        self.surrender = tk.BooleanVar(value=True)
+        self.strategy_file = tk.StringVar(value="BJ_basicStrategy.json")
+        self.database = tk.StringVar(value="simulation.db")
+        self.penetration = tk.DoubleVar(value=0.75)
+        self.seed = tk.StringVar()
+
         self._build_widgets()
 
     def _build_widgets(self):
@@ -25,63 +47,13 @@ class SimulatorGUI:
         controls = tk.Frame(self.root)
         controls.pack(side=tk.BOTTOM, fill=tk.X)
 
-        tk.Label(controls, text="Bankroll").grid(row=0, column=0)
-        self.bankroll = tk.IntVar(value=1000)
-        tk.Spinbox(controls, from_=0, to=100000, increment=100, textvariable=self.bankroll).grid(row=0, column=1)
-
-        tk.Label(controls, text="Trials").grid(row=0, column=2)
-        self.trials = tk.IntVar(value=1)
-        tk.Spinbox(controls, from_=1, to=1000, textvariable=self.trials).grid(row=0, column=3)
-
-        tk.Label(controls, text="Hands/Trial").grid(row=0, column=4)
-        self.hands = tk.IntVar(value=6)
-        tk.Spinbox(controls, from_=1, to=6, textvariable=self.hands).grid(row=0, column=5)
-
-        tk.Label(controls, text="Bet").grid(row=1, column=0)
-        self.bet = tk.IntVar(value=10)
-        tk.Spinbox(controls, from_=1, to=1000, textvariable=self.bet).grid(row=1, column=1)
-
-        tk.Label(controls, text="Decks").grid(row=1, column=2)
-        self.decks = tk.IntVar(value=6)
-        tk.Spinbox(controls, from_=1, to=12, textvariable=self.decks).grid(row=1, column=3)
-
-        tk.Label(controls, text="Payout").grid(row=1, column=4)
-        self.payout = tk.StringVar(value="3:2")
-        ttk.Combobox(controls, textvariable=self.payout, values=["3:2", "6:5"], state="readonly").grid(row=1, column=5)
-
-        tk.Label(controls, text="Dealer").grid(row=2, column=0)
-        self.dealer = tk.StringVar(value="H17")
-        ttk.Combobox(controls, textvariable=self.dealer, values=["H17", "S17"], state="readonly").grid(row=2, column=1)
-
-        self.das = tk.BooleanVar()
-        tk.Checkbutton(controls, text="DAS", variable=self.das).grid(row=2, column=2)
-
-        self.rsa = tk.BooleanVar()
-        tk.Checkbutton(controls, text="RSA", variable=self.rsa).grid(row=2, column=3)
-
-        tk.Label(controls, text="Strategy").grid(row=3, column=0)
-        self.strategy_file = tk.StringVar(value="BJ_basicStrategy.json")
-        ttk.Entry(controls, textvariable=self.strategy_file).grid(row=3, column=1)
-
-        tk.Label(controls, text="Database").grid(row=3, column=2)
-        self.database = tk.StringVar(value="simulation.db")
-        ttk.Entry(controls, textvariable=self.database).grid(row=3, column=3)
-
-        tk.Label(controls, text="Penetration").grid(row=3, column=4)
-        self.penetration = tk.DoubleVar(value=0.75)
-        tk.Spinbox(controls, from_=0.1, to=1.0, increment=0.05, textvariable=self.penetration).grid(row=3, column=5)
-
-        tk.Label(controls, text="Seed").grid(row=4, column=0)
-        self.seed = tk.StringVar()
-        ttk.Entry(controls, textvariable=self.seed).grid(row=4, column=1)
-
-        tk.Button(controls, text="Run", command=self.run_simulation).grid(row=2, column=4)
+        tk.Button(controls, text="Run", command=self.run_simulation).pack(side=tk.LEFT)
         self.save_btn = tk.Button(controls, text="Save", command=self.save_results, state=tk.DISABLED)
-        self.save_btn.grid(row=2, column=5)
+        self.save_btn.pack(side=tk.LEFT)
         self.discard_btn = tk.Button(controls, text="Discard", command=self.discard_results, state=tk.DISABLED)
-        self.discard_btn.grid(row=2, column=6)
+        self.discard_btn.pack(side=tk.LEFT)
 
-        tk.Label(controls, text="Plot Trial").grid(row=4, column=0)
+        tk.Label(controls, text="Plot Trial").pack(side=tk.LEFT)
         self.plot_trial = tk.IntVar(value=1)
         self.plot_trial_spin = tk.Spinbox(
             controls,
@@ -89,8 +61,54 @@ class SimulatorGUI:
             to=1,
             textvariable=self.plot_trial,
             command=self.update_graph,
+            width=5,
         )
-        self.plot_trial_spin.grid(row=4, column=1)
+        self.plot_trial_spin.pack(side=tk.LEFT)
+
+        tk.Button(controls, text="Settings", command=self.open_settings).pack(side=tk.RIGHT)
+
+    def open_settings(self):
+        if hasattr(self, "settings_win") and self.settings_win.winfo_exists():
+            self.settings_win.lift()
+            return
+        self.settings_win = tk.Toplevel(self.root)
+        self.settings_win.title("Settings")
+        frame = tk.Frame(self.settings_win)
+        frame.pack(padx=10, pady=10)
+
+        tk.Label(frame, text="Bankroll").grid(row=0, column=0, sticky="e")
+        tk.Entry(frame, textvariable=self.bankroll).grid(row=0, column=1)
+        tk.Label(frame, text="Trials").grid(row=0, column=2, sticky="e")
+        tk.Entry(frame, textvariable=self.trials).grid(row=0, column=3)
+
+        tk.Label(frame, text="Hands/Trial").grid(row=1, column=0, sticky="e")
+        tk.Spinbox(frame, from_=1, to=6, textvariable=self.hands, width=5).grid(row=1, column=1)
+        tk.Label(frame, text="Bet").grid(row=1, column=2, sticky="e")
+        tk.Spinbox(frame, from_=1, to=1000, textvariable=self.bet, width=5).grid(row=1, column=3)
+
+        tk.Label(frame, text="Decks").grid(row=2, column=0, sticky="e")
+        tk.Spinbox(frame, from_=1, to=12, textvariable=self.decks, width=5).grid(row=2, column=1)
+        tk.Label(frame, text="Penetration").grid(row=2, column=2, sticky="e")
+        tk.Spinbox(frame, from_=0.25, to=0.95, increment=0.01, textvariable=self.penetration, width=5).grid(row=2, column=3)
+
+        tk.Label(frame, text="Payout").grid(row=3, column=0, sticky="e")
+        ttk.Combobox(frame, textvariable=self.payout, values=["3:2", "6:5"], state="readonly").grid(row=3, column=1)
+        tk.Label(frame, text="Dealer").grid(row=3, column=2, sticky="e")
+        ttk.Combobox(frame, textvariable=self.dealer, values=["H17", "S17"], state="readonly").grid(row=3, column=3)
+
+        tk.Checkbutton(frame, text="DAS", variable=self.das).grid(row=4, column=0)
+        tk.Checkbutton(frame, text="RSA", variable=self.rsa).grid(row=4, column=1)
+        tk.Checkbutton(frame, text="Surrender", variable=self.surrender).grid(row=4, column=2)
+
+        tk.Label(frame, text="Strategy").grid(row=5, column=0, sticky="e")
+        ttk.Entry(frame, textvariable=self.strategy_file).grid(row=5, column=1, columnspan=3, sticky="we")
+        tk.Label(frame, text="Database").grid(row=6, column=0, sticky="e")
+        ttk.Entry(frame, textvariable=self.database).grid(row=6, column=1, columnspan=3, sticky="we")
+
+        tk.Label(frame, text="Seed").grid(row=7, column=0, sticky="e")
+        ttk.Entry(frame, textvariable=self.seed).grid(row=7, column=1, columnspan=3, sticky="we")
+
+        tk.Button(frame, text="Close", command=self.settings_win.destroy).grid(row=8, column=0, columnspan=4, pady=(10, 0))
 
     def run_simulation(self):
         if self.sim:
@@ -102,6 +120,7 @@ class SimulatorGUI:
             blackjack_payout=1.5 if self.payout.get() == "3:2" else 1.2,
             double_after_split=self.das.get(),
             resplit_aces=self.rsa.get(),
+            allow_surrender=self.surrender.get(),
             bet_amount=float(self.bet.get()),
             num_decks=self.decks.get(),
             hit_soft_17=self.dealer.get() == "H17",

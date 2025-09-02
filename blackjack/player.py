@@ -1,9 +1,15 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
-from .hand import Hand
-from .cards import Shoe
-from .strategy import BasicStrategy
+
+try:  # pragma: no cover - fallback for direct execution
+    from .hand import Hand
+    from .cards import Shoe
+    from .strategy import BasicStrategy
+except ImportError:  # pragma: no cover
+    from hand import Hand  # type: ignore
+    from cards import Shoe  # type: ignore
+    from strategy import BasicStrategy  # type: ignore
 
 @dataclass
 class PlayerSettings:
@@ -11,6 +17,7 @@ class PlayerSettings:
     blackjack_payout: float = 1.5
     double_after_split: bool = True
     resplit_aces: bool = False
+    allow_surrender: bool = True
     bet_amount: float = 1.0  # base wager per hand
 
 @dataclass
@@ -33,7 +40,7 @@ class Player:
         action = self.strategy.decide(hand, dealer_up, {
             "can_double": can_double and not hand.is_split_aces,
             "can_split": hand.can_split,
-            "can_surrender": not hand.is_split,
+            "can_surrender": self.settings.allow_surrender and not hand.is_split,
         })
         if action == "surrender":
             hand.surrendered = True
