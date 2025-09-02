@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import pandas as pd
 
 try:  # pragma: no cover - fallback for direct execution
     from .settings import SimulationSettings
@@ -38,11 +39,16 @@ class SimulatorGUI:
     def _build_widgets(self):
         fig = Figure(figsize=(6, 4))
         self.ax = fig.add_subplot(111)
-        self.ax.set_xlabel("Hands Played")
-        self.ax.set_ylabel("Bankroll")
-        self.ax.set_ylim(0, 100)
         self.canvas = FigureCanvasTkAgg(fig, master=self.root)
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        self.table_frame = tk.Frame(self.root)
+        self.table_frame.pack(fill=tk.BOTH, expand=True)
+        self.table = ttk.Treeview(self.table_frame, show="headings")
+        self.table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scroll = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.table.configure(yscrollcommand=scroll.set)
+        scroll.pack(side=tk.RIGHT, fill=tk.Y)
 
         controls = tk.Frame(self.root)
         controls.pack(side=tk.BOTTOM, fill=tk.X)
@@ -65,6 +71,7 @@ class SimulatorGUI:
         )
         self.plot_trial_spin.pack(side=tk.LEFT)
 
+        tk.Button(controls, text="Exit", command=self.exit_prompt).pack(side=tk.RIGHT)
         tk.Button(controls, text="Settings", command=self.open_settings).pack(side=tk.RIGHT)
 
     def open_settings(self):
@@ -137,6 +144,7 @@ class SimulatorGUI:
         self.plot_trial_spin.config(to=self.trials.get())
         self.plot_trial.set(1)
         self.update_graph()
+        self.update_table()
         self.save_btn.config(state=tk.NORMAL)
         self.discard_btn.config(state=tk.NORMAL)
 
@@ -153,13 +161,31 @@ class SimulatorGUI:
         if not data:
             return
         hands, bankrolls = zip(*data)
+        pl = [b - self.bankroll.get() for b in bankrolls]
         self.ax.clear()
-        self.ax.set_xlabel(f"Cumulative Hands Played (Trial {trial})")
-        self.ax.set_ylabel("Bankroll")
-        self.ax.set_xlim(1, max(hands))
-        self.ax.set_ylim(0, max(bankrolls) * 1.1)
-        self.ax.plot(hands, bankrolls)
+        self.ax.set_xlabel("Total Hands Played")
+        self.ax.set_ylabel("P/L")
+        self.ax.set_xlim(0, max(hands))
+        max_y = self.bankroll.get() * 20
+        min_y = -self.bankroll.get()
+        self.ax.set_ylim(min_y, max_y)
+        self.ax.axhline(0, color="gray", linewidth=0.5)
+        self.ax.plot(hands, pl)
         self.canvas.draw()
+
+    def update_table(self):
+        if not self.sim:
+            return
+        df = pd.read_sql_query("SELECT * FROM temp_results ORDER BY trial", self.sim.conn)
+        self.table.delete(*self.table.get_children())
+        if df.empty:
+            return
+        self.table["columns"] = list(df.columns)
+        for col in df.columns:
+            self.table.heading(col, text=col)
+            self.table.column(col, width=100, stretch=True)
+        for _, row in df.iterrows():
+            self.table.insert("", tk.END, values=list(row))
 
     def save_results(self):
         if self.sim:
@@ -169,6 +195,7 @@ class SimulatorGUI:
             messagebox.showinfo("Saved", "Results saved")
             self.save_btn.config(state=tk.DISABLED)
             self.discard_btn.config(state=tk.DISABLED)
+            self.update_table()
 
     def discard_results(self):
         if self.sim:
@@ -178,6 +205,40 @@ class SimulatorGUI:
             messagebox.showinfo("Discarded", "Results discarded")
             self.save_btn.config(state=tk.DISABLED)
             self.discard_btn.config(state=tk.DISABLED)
+            self.update_table()
+
+    def has_unsaved_data(self) -> bool:
+        if not self.sim:
+            return False
+        cur = self.sim.conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM temp_results")
+        return cur.fetchone()[0] > 0
+
+    def exit_prompt(self):
+        if self.has_unsaved_data():
+            win = tk.Toplevel(self.root)
+            win.title("Exit")
+            tk.Label(win, text="Save data to permanent tables before exiting?").pack(padx=10, pady=10)
+            btn_frame = tk.Frame(win)
+            btn_frame.pack(pady=5)
+            tk.Button(btn_frame, text="Save", command=lambda: self._exit_and_save(win)).pack(side=tk.LEFT, padx=5)
+            tk.Button(btn_frame, text="Don't Save", command=lambda: self._exit_without_save(win)).pack(side=tk.LEFT, padx=5)
+        else:
+            self._exit_without_save()
+
+    def _exit_and_save(self, win=None):
+        if win:
+            win.destroy()
+        if self.sim:
+            self.save_results()
+        self.root.destroy()
+
+    def _exit_without_save(self, win=None):
+        if win:
+            win.destroy()
+        if self.sim:
+            self.sim.close()
+        self.root.destroy()
 
     def run(self):
         self.root.mainloop()

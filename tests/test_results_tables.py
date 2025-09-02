@@ -33,12 +33,20 @@ def test_save_results_moves_temp_to_permanent(tmp_path):
     assert cur.fetchone()[0] == 1
     cur.execute("SELECT COUNT(*) FROM summary")
     assert cur.fetchone()[0] == 0
+    cur.execute("SELECT COUNT(*) FROM temp_results")
+    assert cur.fetchone()[0] > 0
+    cur.execute("SELECT COUNT(*) FROM results")
+    assert cur.fetchone()[0] == 0
 
     sim.save_results()
 
     cur.execute("SELECT COUNT(*) FROM summary")
     assert cur.fetchone()[0] == 1
     cur.execute("SELECT COUNT(*) FROM temp_summary")
+    assert cur.fetchone()[0] == 0
+    cur.execute("SELECT COUNT(*) FROM results")
+    assert cur.fetchone()[0] > 0
+    cur.execute("SELECT COUNT(*) FROM temp_results")
     assert cur.fetchone()[0] == 0
 
     cur.execute("SELECT COUNT(*) FROM bankroll")
@@ -60,6 +68,8 @@ def test_discard_results_clears_temp_tables(tmp_path):
 
     cur.execute("SELECT COUNT(*) FROM temp_bankroll")
     assert cur.fetchone()[0] > 0
+    cur.execute("SELECT COUNT(*) FROM temp_results")
+    assert cur.fetchone()[0] > 0
 
     sim.discard_results()
 
@@ -69,12 +79,16 @@ def test_discard_results_clears_temp_tables(tmp_path):
     assert cur.fetchone()[0] == 0
     cur.execute("SELECT COUNT(*) FROM temp_card_distribution")
     assert cur.fetchone()[0] == 0
+    cur.execute("SELECT COUNT(*) FROM temp_results")
+    assert cur.fetchone()[0] == 0
 
     cur.execute("SELECT COUNT(*) FROM bankroll")
     assert cur.fetchone()[0] == 0
     cur.execute("SELECT COUNT(*) FROM summary")
     assert cur.fetchone()[0] == 0
     cur.execute("SELECT COUNT(*) FROM card_distribution")
+    assert cur.fetchone()[0] == 0
+    cur.execute("SELECT COUNT(*) FROM results")
     assert cur.fetchone()[0] == 0
 
     sim.close()
