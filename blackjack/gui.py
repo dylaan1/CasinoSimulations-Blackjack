@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, font as tkfont
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import pandas as pd
@@ -93,44 +93,52 @@ class SimulatorGUI:
         frame = tk.Frame(self.settings_win)
         frame.pack(padx=10, pady=10)
 
-        tk.Label(frame, text="Bankroll").grid(row=0, column=0, sticky="e")
-        tk.Entry(frame, textvariable=self.bankroll).grid(row=0, column=1)
-        tk.Label(frame, text="Trials").grid(row=0, column=2, sticky="e")
-        tk.Entry(frame, textvariable=self.trials).grid(row=0, column=3)
+        row = 0
+        tk.Label(frame, text="Bankroll").grid(row=row, column=0, sticky="e")
+        tk.Entry(frame, textvariable=self.bankroll).grid(row=row, column=1)
+        tk.Label(frame, text="Trials").grid(row=row, column=2, sticky="e")
+        tk.Entry(frame, textvariable=self.trials).grid(row=row, column=3)
+        row += 1
+        tk.Label(frame, text="Strategy").grid(row=row, column=0, sticky="e")
+        ttk.Entry(frame, textvariable=self.strategy_file).grid(row=row, column=1, columnspan=3, sticky="we")
+        row += 1
+        tk.Label(frame, text="Database").grid(row=row, column=0, sticky="e")
+        ttk.Entry(frame, textvariable=self.database).grid(row=row, column=1, columnspan=3, sticky="we")
+        row += 1
+        tk.Label(frame, text="Seed").grid(row=row, column=0, sticky="e")
+        ttk.Entry(frame, textvariable=self.seed).grid(row=row, column=1, columnspan=3, sticky="we")
+        row += 1
 
-        tk.Label(frame, text="Hands/Trial").grid(row=1, column=0, sticky="e")
-        tk.Spinbox(frame, from_=1, to=6, textvariable=self.hands, width=5).grid(row=1, column=1)
-        tk.Label(frame, text="Bet").grid(row=1, column=2, sticky="e")
-        tk.Spinbox(frame, from_=1, to=1000, textvariable=self.bet, width=5).grid(row=1, column=3)
+        ttk.Separator(frame, orient="horizontal").grid(row=row, column=0, columnspan=4, sticky="ew", pady=5)
+        row += 1
 
-        tk.Label(frame, text="Decks").grid(row=2, column=0, sticky="e")
-        tk.Spinbox(frame, from_=1, to=12, textvariable=self.decks, width=5).grid(row=2, column=1)
-        tk.Label(frame, text="Penetration").grid(row=2, column=2, sticky="e")
-        tk.Spinbox(frame, from_=0.25, to=0.95, increment=0.01, textvariable=self.penetration, width=5).grid(row=2, column=3)
+        tk.Label(frame, text="Hands/Trial").grid(row=row, column=0, sticky="e")
+        tk.Spinbox(frame, from_=1, to=6, textvariable=self.hands, width=5).grid(row=row, column=1)
+        tk.Label(frame, text="Bet").grid(row=row, column=2, sticky="e")
+        tk.Spinbox(frame, from_=1, to=1000, textvariable=self.bet, width=5).grid(row=row, column=3)
+        row += 1
+        tk.Label(frame, text="Decks").grid(row=row, column=0, sticky="e")
+        tk.Spinbox(frame, from_=1, to=12, textvariable=self.decks, width=5).grid(row=row, column=1)
+        tk.Label(frame, text="Penetration").grid(row=row, column=2, sticky="e")
+        tk.Spinbox(frame, from_=0.25, to=0.95, increment=0.01, textvariable=self.penetration, width=5).grid(row=row, column=3)
+        row += 1
+        tk.Label(frame, text="Payout").grid(row=row, column=0, sticky="e")
+        ttk.Combobox(frame, textvariable=self.payout, values=["3:2", "6:5"], state="readonly").grid(row=row, column=1)
+        tk.Label(frame, text="Dealer").grid(row=row, column=2, sticky="e")
+        ttk.Combobox(frame, textvariable=self.dealer, values=["H17", "S17"], state="readonly").grid(row=row, column=3)
+        row += 1
 
-        tk.Label(frame, text="Payout").grid(row=3, column=0, sticky="e")
-        ttk.Combobox(frame, textvariable=self.payout, values=["3:2", "6:5"], state="readonly").grid(row=3, column=1)
-        tk.Label(frame, text="Dealer").grid(row=3, column=2, sticky="e")
-        ttk.Combobox(frame, textvariable=self.dealer, values=["H17", "S17"], state="readonly").grid(row=3, column=3)
+        ttk.Separator(frame, orient="horizontal").grid(row=row, column=0, columnspan=4, sticky="ew", pady=5)
+        row += 1
 
-        tk.Checkbutton(frame, text="DAS", variable=self.das).grid(row=4, column=0)
-        tk.Checkbutton(frame, text="RSA", variable=self.rsa).grid(row=4, column=1)
-        tk.Checkbutton(frame, text="Surrender", variable=self.surrender).grid(row=4, column=2)
-
-        tk.Label(frame, text="Strategy").grid(row=5, column=0, sticky="e")
-        ttk.Entry(frame, textvariable=self.strategy_file).grid(row=5, column=1, columnspan=3, sticky="we")
-        tk.Label(frame, text="Database").grid(row=6, column=0, sticky="e")
-        ttk.Entry(frame, textvariable=self.database).grid(row=6, column=1, columnspan=3, sticky="we")
-
-        tk.Label(frame, text="Seed").grid(row=7, column=0, sticky="e")
-        ttk.Entry(frame, textvariable=self.seed).grid(row=7, column=1, columnspan=3, sticky="we")
-
-        tk.Checkbutton(frame, text="Test Mode", variable=self.test_mode).grid(
-            row=8, column=0, sticky="w"
-        )
+        tk.Checkbutton(frame, text="DAS", variable=self.das).grid(row=row, column=0, sticky="w")
+        tk.Checkbutton(frame, text="RSA", variable=self.rsa).grid(row=row, column=1, sticky="w")
+        tk.Checkbutton(frame, text="Surrender", variable=self.surrender).grid(row=row, column=2, sticky="w")
+        tk.Checkbutton(frame, text="Test Mode", variable=self.test_mode).grid(row=row, column=3, sticky="w")
+        row += 1
 
         tk.Button(frame, text="Close", command=self.settings_win.destroy).grid(
-            row=9, column=0, columnspan=4, pady=(10, 0)
+            row=row, column=0, columnspan=4, pady=(10, 0)
         )
 
     def run_simulation(self):
@@ -169,40 +177,57 @@ class SimulatorGUI:
         if not self.sim:
             return
         trial = self.plot_trial.get()
-        cur = self.sim.conn.cursor()
-        cur.execute(
+        df = pd.read_sql_query(
             "SELECT hand, bankroll FROM temp_bankroll WHERE trial=? ORDER BY hand",
-            (trial,),
+            self.sim.conn,
+            params=(trial,),
         )
-        data = cur.fetchall()
-        if not data:
+        if df.empty:
             return
-        hands, bankrolls = zip(*data)
-        pl = [b - self.bankroll.get() for b in bankrolls]
+
+        df["pl"] = df["bankroll"] - self.bankroll.get()
+        xmin = 0
+        xmax = max(100, df["hand"].max())
+        ymin = -self.bankroll.get()
+        ymax = self.bankroll.get() * 2
+
         self.ax.clear()
         self.ax.set_xlabel("Total Hands Played")
         self.ax.set_ylabel("P/L")
-        self.ax.set_xlim(0, max(hands))
-        max_y = self.bankroll.get() * 20
-        min_y = -self.bankroll.get()
-        self.ax.set_ylim(min_y, max_y)
+        self.ax.set_xlim(xmin, xmax)
+        self.ax.set_ylim(ymin, ymax)
+        # Draw a horizontal line at y=0 so it's visually centered
         self.ax.axhline(0, color="gray", linewidth=0.5)
-        self.ax.plot(hands, pl)
+        self.ax.plot(df["hand"], df["pl"], color="blue")
         self.canvas.draw()
 
     def update_table(self):
         if not self.sim:
             return
-        df = pd.read_sql_query("SELECT * FROM temp_results ORDER BY trial", self.sim.conn)
+        df = pd.read_sql_query(
+            "SELECT * FROM temp_results ORDER BY trial", self.sim.conn
+        )
         self.table.delete(*self.table.get_children())
         if df.empty:
             return
+
+        # Display booleans as Y/N instead of 1/0
+        bool_cols = {"das", "rsa", "surrender"}
+        for col in bool_cols & set(df.columns):
+            df[col] = df[col].map({0: "N", 1: "Y"})
+
         self.table["columns"] = list(df.columns)
+        font = tkfont.nametofont("TkDefaultFont")
         for col in df.columns:
+            values = [str(v) for v in df[col].tolist()] + [col]
+            width = max(font.measure(v) for v in values) + 20
+            is_numeric = pd.api.types.is_numeric_dtype(df[col]) and col not in bool_cols
+            stretch = not (is_numeric or col in bool_cols)
             self.table.heading(col, text=col)
-            self.table.column(col, width=100, stretch=True)
+            self.table.column(col, width=width, stretch=stretch)
+
         for _, row in df.iterrows():
-            self.table.insert("", tk.END, values=list(row))
+            self.table.insert("", tk.END, values=[row[col] for col in df.columns])
 
     def save_results(self):
         if self.sim:

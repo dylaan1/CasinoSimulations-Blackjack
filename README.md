@@ -23,7 +23,7 @@ A modular blackjack simulation engine for exploring different strategies and cas
 
 - **Strategy plug-ins**: point to any JSON basic strategy file; each defines `hard`, `soft`, and `pair` tables mapping player totals and dealer up-cards to actions.
 
-- **Data output**: bankroll history, final summaries, and card distributions stored in SQLite for downstream analysis (e.g., with the included R script).
+- **Data output**: bankroll history, final summaries, and card distributions stored in SQLite for downstream analysis. A built-in Matplotlib plot visualizes bankroll progression for each trial.
 
 - **Test mode**: run simulations without saving results to permanent tables to perform dry runs. Toggle via the GUI settings or the `--test-mode` CLI flag.
 
@@ -60,9 +60,7 @@ In the GUI, open **Settings** and check **Test Mode**. A red banner at the top o
 
 ### Visualization
 
-```bash
-Rscript analysis.R simulation.db
-```
+The GUI uses Matplotlib to render a local line graph of profit/loss over the number of hands played. Results can also be queried directly from the SQLite database for custom analysis.
 
 The simulator expects `BJ_basicStrategy.json` to contain three top-level objects: `hard`, `soft`, and `pair`. Each maps player totals (or pair ranks) and dealer up-cards to recommended actions (`hit`, `stand`, `double`, `split`, `surrender`).
 

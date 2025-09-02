@@ -102,40 +102,50 @@ class Simulator:
     def _format_round(
         self, initial_cards: List[Card], player_hands: List[Hand], dealer_hand: Hand
     ) -> str:
+        def _fmt(rank: str) -> str:
+            """Represent the rank using single-character notation.
+
+            The simulator records tens as ``"10"`` internally, but the
+            interface displays them as ``"T"`` to keep hand layouts compact
+            (e.g. ``9T`` for a hard 19).
+            """
+
+            return "T" if rank == "10" else rank
+
         player_repr: str
         if len(player_hands) == 1:
             hand_obj = player_hands[0]
-            base = ''.join(c.rank for c in initial_cards)
+            base = "".join(_fmt(c.rank) for c in initial_cards)
             if hand_obj.surrendered:
                 player_repr = f"{base}|x"
             else:
-                extra = ''
+                extra = ""
                 if len(hand_obj.cards) > 2:
                     extra_cards = hand_obj.cards[2:]
                     is_double = hand_obj.bet > self.settings.bet_amount
                     if is_double:
-                        extra += 'd' + extra_cards[0].rank
+                        extra += "d" + _fmt(extra_cards[0].rank)
                     else:
-                        extra += ''.join(c.rank for c in extra_cards)
-                player_repr = base + '|' + extra
-                player_repr += '_' if hand_obj.is_bust else 's'
+                        extra += "".join(_fmt(c.rank) for c in extra_cards)
+                player_repr = base + "|" + extra
+                player_repr += "_" if hand_obj.is_bust else "s"
         else:
-            base = ''.join(c.rank for c in initial_cards)
+            base = "".join(_fmt(c.rank) for c in initial_cards)
             parts = []
             for h in player_hands:
                 seg_cards = h.cards[1:]
                 if h.bet > self.settings.bet_amount and len(seg_cards) >= 2:
-                    seg = 'v' + seg_cards[0].rank + 'd' + seg_cards[1].rank
+                    seg = "v" + _fmt(seg_cards[0].rank) + "d" + _fmt(seg_cards[1].rank)
                 else:
-                    seg = 'v' + ''.join(c.rank for c in seg_cards)
-                seg += '_' if h.is_bust else 's'
+                    seg = "v" + "".join(_fmt(c.rank) for c in seg_cards)
+                seg += "_" if h.is_bust else "s"
                 parts.append(seg)
-            player_repr = base + '|' + '_'.join(parts)
+            player_repr = base + "|" + "_".join(parts)
 
-        dealer_base = dealer_hand.cards[0].rank
-        extra = ''.join(c.rank for c in dealer_hand.cards[1:])
-        dealer_repr = dealer_base + '|' + extra
-        dealer_repr += '_' if dealer_hand.is_bust else 's'
+        dealer_base = _fmt(dealer_hand.cards[0].rank)
+        extra = "".join(_fmt(c.rank) for c in dealer_hand.cards[1:])
+        dealer_repr = dealer_base + "|" + extra
+        dealer_repr += "_" if dealer_hand.is_bust else "s"
         return f"Player Hand: {player_repr}, Dealer Hand: {dealer_repr}"
 
     def run(self) -> None:
@@ -212,9 +222,11 @@ class Simulator:
                 (trial, hands_played, player_settings.bankroll),
             )
             for card, count in shoe.drawn_counts.items():
+                # Store tens as "T" for compact distribution records
+                rank = "T" if card == "10" else card
                 cur.execute(
                     "INSERT INTO temp_card_distribution VALUES (?,?,?)",
-                    (trial, card, count),
+                    (trial, rank, count),
                 )
             self.conn.commit()
 
