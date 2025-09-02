@@ -44,6 +44,7 @@ python -m blackjack.main \
     --resplit-aces \
     --strategy strategy.json \
     --database simulation.db
+
 ```
 
 ### Graphical interface
@@ -61,6 +62,7 @@ opens like any other native app.
 ```bash
 pip install .
 blackjack-sim  # runs without a console window
+
 ```
 
 ### Visualization

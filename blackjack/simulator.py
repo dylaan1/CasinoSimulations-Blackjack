@@ -1,5 +1,8 @@
 from __future__ import annotations
 import sqlite3
+
+from dataclasses import asdict
+
 from .settings import SimulationSettings
 from .cards import Shoe
 from .player import Player, PlayerSettings
@@ -16,6 +19,7 @@ class Simulator:
 
     def _init_db(self) -> None:
         cur = self.conn.cursor()
+
         cur.execute(
             "CREATE TABLE IF NOT EXISTS bankroll (trial INTEGER, hand INTEGER, bankroll REAL)"
         )
@@ -34,6 +38,11 @@ class Simulator:
         cur.execute(
             "CREATE TABLE IF NOT EXISTS temp_card_distribution (trial INTEGER, card TEXT, count INTEGER)"
         )
+
+        cur.execute("CREATE TABLE IF NOT EXISTS bankroll (trial INTEGER, hand INTEGER, bankroll REAL)")
+        cur.execute("CREATE TABLE IF NOT EXISTS summary (trial INTEGER, hands_played INTEGER, bankroll REAL)")
+        cur.execute("CREATE TABLE IF NOT EXISTS card_distribution (trial INTEGER, card TEXT, count INTEGER)")
+
         self.conn.commit()
 
     def run(self) -> None:
@@ -73,6 +82,7 @@ class Simulator:
                     change = self.resolve_hand(hand, dealer_hand, player_settings)
                     player_settings.bankroll += change
                 hands_played += len(player_hands)
+
                 cur.execute(
                     "INSERT INTO temp_bankroll VALUES (?,?,?)",
                     (trial, hands_played, player_settings.bankroll),
@@ -108,6 +118,16 @@ class Simulator:
         self.conn.commit()
 
     def close(self) -> None:
+
+                cur.execute("INSERT INTO bankroll VALUES (?,?,?)", (trial, hands_played, player_settings.bankroll))
+            cur.execute(
+                "INSERT INTO summary VALUES (?,?,?)",
+                (trial, hands_played, player_settings.bankroll),
+            )
+            for card, count in shoe.drawn_counts.items():
+                cur.execute("INSERT INTO card_distribution VALUES (?,?,?)", (trial, card, count))
+            self.conn.commit()
+
         self.conn.close()
 
     def resolve_hand(self, hand, dealer_hand, settings: PlayerSettings) -> float:
