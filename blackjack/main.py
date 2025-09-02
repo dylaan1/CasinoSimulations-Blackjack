@@ -32,6 +32,17 @@ def parse_args() -> SimulationSettings:
         database=args.database,
     )
 
+
+def run_cli():
+    settings = parse_args()
+    sim = Simulator(settings)
+    sim.run()
+    sim.save_results()
+    sim.close()
+
+if __name__ == "__main__":
+    run_cli()
+
 def main():
     settings = parse_args()
     sim = Simulator(settings)
@@ -39,3 +50,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

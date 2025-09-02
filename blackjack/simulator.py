@@ -1,6 +1,8 @@
 from __future__ import annotations
 import sqlite3
+
 from dataclasses import asdict
+
 from .settings import SimulationSettings
 from .cards import Shoe
 from .player import Player, PlayerSettings
@@ -17,9 +19,30 @@ class Simulator:
 
     def _init_db(self) -> None:
         cur = self.conn.cursor()
+
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS bankroll (trial INTEGER, hand INTEGER, bankroll REAL)"
+        )
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS summary (trial INTEGER, hands_played INTEGER, bankroll REAL)"
+        )
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS card_distribution (trial INTEGER, card TEXT, count INTEGER)"
+        )
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS temp_bankroll (trial INTEGER, hand INTEGER, bankroll REAL)"
+        )
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS temp_summary (trial INTEGER, hands_played INTEGER, bankroll REAL)"
+        )
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS temp_card_distribution (trial INTEGER, card TEXT, count INTEGER)"
+        )
+
         cur.execute("CREATE TABLE IF NOT EXISTS bankroll (trial INTEGER, hand INTEGER, bankroll REAL)")
         cur.execute("CREATE TABLE IF NOT EXISTS summary (trial INTEGER, hands_played INTEGER, bankroll REAL)")
         cur.execute("CREATE TABLE IF NOT EXISTS card_distribution (trial INTEGER, card TEXT, count INTEGER)")
+
         self.conn.commit()
 
     def run(self) -> None:
@@ -59,6 +82,43 @@ class Simulator:
                     change = self.resolve_hand(hand, dealer_hand, player_settings)
                     player_settings.bankroll += change
                 hands_played += len(player_hands)
+
+                cur.execute(
+                    "INSERT INTO temp_bankroll VALUES (?,?,?)",
+                    (trial, hands_played, player_settings.bankroll),
+                )
+            cur.execute(
+                "INSERT INTO temp_summary VALUES (?,?,?)",
+                (trial, hands_played, player_settings.bankroll),
+            )
+            for card, count in shoe.drawn_counts.items():
+                cur.execute(
+                    "INSERT INTO temp_card_distribution VALUES (?,?,?)",
+                    (trial, card, count),
+                )
+            self.conn.commit()
+
+    def save_results(self) -> None:
+        """Persist temporary tables into permanent storage."""
+        cur = self.conn.cursor()
+        cur.execute("INSERT INTO bankroll SELECT * FROM temp_bankroll")
+        cur.execute("INSERT INTO summary SELECT * FROM temp_summary")
+        cur.execute("INSERT INTO card_distribution SELECT * FROM temp_card_distribution")
+        cur.execute("DELETE FROM temp_bankroll")
+        cur.execute("DELETE FROM temp_summary")
+        cur.execute("DELETE FROM temp_card_distribution")
+        self.conn.commit()
+
+    def discard_results(self) -> None:
+        """Remove any data from the temporary tables."""
+        cur = self.conn.cursor()
+        cur.execute("DELETE FROM temp_bankroll")
+        cur.execute("DELETE FROM temp_summary")
+        cur.execute("DELETE FROM temp_card_distribution")
+        self.conn.commit()
+
+    def close(self) -> None:
+
                 cur.execute("INSERT INTO bankroll VALUES (?,?,?)", (trial, hands_played, player_settings.bankroll))
             cur.execute(
                 "INSERT INTO summary VALUES (?,?,?)",
@@ -67,6 +127,7 @@ class Simulator:
             for card, count in shoe.drawn_counts.items():
                 cur.execute("INSERT INTO card_distribution VALUES (?,?,?)", (trial, card, count))
             self.conn.commit()
+
         self.conn.close()
 
     def resolve_hand(self, hand, dealer_hand, settings: PlayerSettings) -> float:
