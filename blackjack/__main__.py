@@ -6,7 +6,7 @@ from .settings import SimulationSettings, DEFAULT_STRATEGY_FILE
 from .simulator import Simulator
 
 
-def parse_args() -> tuple[SimulationSettings, bool]:
+def parse_args() -> SimulationSettings:
     parser = argparse.ArgumentParser(description="Blackjack simulator")
     parser.add_argument("--trials", type=int, default=100)
     parser.add_argument("--hands", type=int, default=100)
@@ -21,7 +21,7 @@ def parse_args() -> tuple[SimulationSettings, bool]:
     parser.add_argument("--strategy", type=str, default=str(DEFAULT_STRATEGY_FILE))
     parser.add_argument("--database", type=str, default="simulation.db")
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
-    parser.add_argument("--no-save", action="store_true", help="Do not save simulation results")
+    parser.add_argument("--test-mode", action="store_true", help="Run without persisting results")
     args = parser.parse_args()
     if not Path(args.strategy).is_file():
         parser.error(f"Strategy file '{args.strategy}' not found.")
@@ -39,8 +39,9 @@ def parse_args() -> tuple[SimulationSettings, bool]:
         strategy_file=args.strategy,
         database=args.database,
         seed=args.seed,
+        test_mode=args.test_mode,
     )
-    return settings, args.no_save
+    return settings
 
 
 def run_gui():
@@ -49,11 +50,13 @@ def run_gui():
 
 
 def run_cli():
-    settings, no_save = parse_args()
+    settings = parse_args()
     sim = Simulator(settings)
     sim.run()
-    if not no_save:
+    if not settings.test_mode:
         sim.save_results()
+    else:
+        print("Test mode enabled: results kept in temporary tables only.")
     sim.close()
 
 
