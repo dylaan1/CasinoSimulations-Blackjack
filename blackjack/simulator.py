@@ -1,15 +1,33 @@
 from __future__ import annotations
 import sqlite3
 import random
-
 from dataclasses import asdict
+from importlib import import_module
 
-from .settings import SimulationSettings
-from .cards import Shoe
-from .player import Player, PlayerSettings
-from .dealer import Dealer
-from .strategy import BasicStrategy
-from .hand import Hand
+
+def _import(name: str):
+    """Import ``name`` relative to this package, falling back to absolute."""
+    try:
+        return import_module(f".{name}", __package__)
+    except ImportError:
+        return import_module(name)
+
+
+# Load modules with graceful fallback for standalone execution
+settings = _import("settings")
+cards = _import("cards")
+player = _import("player")
+dealer = _import("dealer")
+strategy = _import("strategy")
+hand = _import("hand")
+
+SimulationSettings = settings.SimulationSettings
+Shoe = cards.Shoe
+Player = player.Player
+PlayerSettings = player.PlayerSettings
+Dealer = dealer.Dealer
+BasicStrategy = strategy.BasicStrategy
+Hand = hand.Hand
 
 
 class Simulator:
@@ -49,7 +67,7 @@ class Simulator:
     def run(self) -> None:
         if self.settings.seed is not None:
             random.seed(self.settings.seed)
-        strat = BasicStrategy.from_json(self.settings.strategy_file)
+        strat = BasicStrategy.from_json(self.settings.strategy_file, allow_surrender=self.settings.allow_surrender)
         for trial in range(1, self.settings.trials + 1):
             shoe = Shoe(self.settings.num_decks, penetration=self.settings.penetration)
             player_settings = PlayerSettings(
@@ -57,6 +75,7 @@ class Simulator:
                 blackjack_payout=self.settings.blackjack_payout,
                 double_after_split=self.settings.double_after_split,
                 resplit_aces=self.settings.resplit_aces,
+                allow_surrender=self.settings.allow_surrender,
                 bet_amount=self.settings.bet_amount,
             )
             player = Player(player_settings, strat)
