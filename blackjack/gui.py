@@ -29,13 +29,19 @@ class SimulatorGUI:
         self.database = tk.StringVar(value="simulation.db")
         self.penetration = tk.DoubleVar(value=0.75)
         self.seed = tk.StringVar()
+        self.test_mode = tk.BooleanVar()
+        self.test_mode.trace_add("write", lambda *args: self._update_test_mode_label())
 
         self._build_widgets()
+        self._update_test_mode_label()
 
     def _build_widgets(self):
         fig = Figure(figsize=(6, 4))
         self.ax = fig.add_subplot(111)
         self.canvas = FigureCanvasTkAgg(fig, master=self.root)
+        self.test_mode_label = tk.Label(
+            self.root, text="The Simulator is currently in 'Test Mode'", fg="red"
+        )
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.table_frame = tk.Frame(self.root)
@@ -69,6 +75,14 @@ class SimulatorGUI:
 
         tk.Button(controls, text="Exit", command=self.exit_prompt).pack(side=tk.RIGHT)
         tk.Button(controls, text="Settings", command=self.open_settings).pack(side=tk.RIGHT)
+
+    def _update_test_mode_label(self):
+        if self.test_mode.get():
+            self.test_mode_label.pack(
+                side=tk.TOP, fill=tk.X, before=self.canvas.get_tk_widget()
+            )
+        else:
+            self.test_mode_label.pack_forget()
 
     def open_settings(self):
         if hasattr(self, "settings_win") and self.settings_win.winfo_exists():
@@ -111,7 +125,13 @@ class SimulatorGUI:
         tk.Label(frame, text="Seed").grid(row=7, column=0, sticky="e")
         ttk.Entry(frame, textvariable=self.seed).grid(row=7, column=1, columnspan=3, sticky="we")
 
-        tk.Button(frame, text="Close", command=self.settings_win.destroy).grid(row=8, column=0, columnspan=4, pady=(10, 0))
+        tk.Checkbutton(frame, text="Test Mode", variable=self.test_mode).grid(
+            row=8, column=0, sticky="w"
+        )
+
+        tk.Button(frame, text="Close", command=self.settings_win.destroy).grid(
+            row=9, column=0, columnspan=4, pady=(10, 0)
+        )
 
     def run_simulation(self):
         if self.sim:
@@ -131,6 +151,7 @@ class SimulatorGUI:
             strategy_file=self.strategy_file.get(),
             database=self.database.get(),
             seed=int(self.seed.get()) if self.seed.get() else None,
+            test_mode=self.test_mode.get(),
         )
         self.sim = Simulator(settings)
         self.sim.run()
@@ -138,7 +159,10 @@ class SimulatorGUI:
         self.plot_trial.set(1)
         self.update_graph()
         self.update_table()
-        self.save_btn.config(state=tk.NORMAL)
+        if self.test_mode.get():
+            self.save_btn.config(state=tk.DISABLED)
+        else:
+            self.save_btn.config(state=tk.NORMAL)
         self.discard_btn.config(state=tk.NORMAL)
 
     def update_graph(self):
