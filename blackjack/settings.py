@@ -1,4 +1,8 @@
 from dataclasses import dataclass
+from pathlib import Path
+
+DEFAULT_STRATEGY_FILE = Path(__file__).resolve().parent.parent / "BJ_basicStrategy.json"
+
 
 @dataclass
 class SimulationSettings:
@@ -12,6 +16,6 @@ class SimulationSettings:
     num_decks: int = 6
     hit_soft_17: bool = False
     penetration: float = 0.75
-    strategy_file: str = "strategy.json"
+    strategy_file: str = str(DEFAULT_STRATEGY_FILE)
     database: str = "simulation.db"
     seed: int | None = None

@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from .settings import SimulationSettings
+from .settings import SimulationSettings, DEFAULT_STRATEGY_FILE
 from .simulator import Simulator
 
 def parse_args() -> tuple[SimulationSettings, bool]:
@@ -16,7 +16,7 @@ def parse_args() -> tuple[SimulationSettings, bool]:
     parser.add_argument("--decks", type=int, default=6)
     parser.add_argument("--h17", action="store_true", help="Dealer hits on soft 17")
     parser.add_argument("--penetration", type=float, default=0.75)
-    parser.add_argument("--strategy", type=str, default="strategy.json")
+    parser.add_argument("--strategy", type=str, default=str(DEFAULT_STRATEGY_FILE))
     parser.add_argument("--database", type=str, default="simulation.db")
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
     parser.add_argument("--no-save", action="store_true", help="Do not save simulation results")
