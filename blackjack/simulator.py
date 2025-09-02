@@ -32,6 +32,15 @@ Hand = hand.Hand
 Card = cards.Card
 
 
+# Mapping of permanent tables to their temporary counterparts
+TABLE_PAIRS = [
+    ("bankroll", "temp_bankroll"),
+    ("summary", "temp_summary"),
+    ("card_distribution", "temp_card_distribution"),
+    ("results", "temp_results"),
+]
+
+
 class Simulator:
     def __init__(self, settings: SimulationSettings):
         self.settings = settings
@@ -232,23 +241,16 @@ class Simulator:
     def save_results(self) -> None:
         """Persist temporary tables into permanent storage."""
         cur = self.conn.cursor()
-        cur.execute("INSERT INTO bankroll SELECT * FROM temp_bankroll")
-        cur.execute("INSERT INTO summary SELECT * FROM temp_summary")
-        cur.execute("INSERT INTO card_distribution SELECT * FROM temp_card_distribution")
-        cur.execute("INSERT INTO results SELECT * FROM temp_results")
-        cur.execute("DELETE FROM temp_bankroll")
-        cur.execute("DELETE FROM temp_summary")
-        cur.execute("DELETE FROM temp_card_distribution")
-        cur.execute("DELETE FROM temp_results")
+        for permanent, temp in TABLE_PAIRS:
+            cur.execute(f"INSERT INTO {permanent} SELECT * FROM {temp}")
+            cur.execute(f"DELETE FROM {temp}")
         self.conn.commit()
 
     def discard_results(self) -> None:
         """Remove any data from the temporary tables."""
         cur = self.conn.cursor()
-        cur.execute("DELETE FROM temp_bankroll")
-        cur.execute("DELETE FROM temp_summary")
-        cur.execute("DELETE FROM temp_card_distribution")
-        cur.execute("DELETE FROM temp_results")
+        for _, temp in TABLE_PAIRS:
+            cur.execute(f"DELETE FROM {temp}")
         self.conn.commit()
 
     def close(self) -> None:
