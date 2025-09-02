@@ -1,3 +1,9 @@
+
+try:  # pragma: no cover - fallback for direct execution
+    from .gui import SimulatorGUI
+except ImportError:  # pragma: no cover
+    from gui import SimulatorGUI  # type: ignore
+
 import argparse
 from pathlib import Path
 

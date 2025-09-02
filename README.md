@@ -32,32 +32,11 @@ A modular blackjack simulation engine for exploring different strategies and cas
 ## Usage
 
 ```bash
-python -m blackjack.main \
-    --trials 10 \
-    --hands 50 \
-    --bankroll 500 \
-    --payout 1.5 \
-    --decks 6 \
-    --penetration 0.75 \
-    --hit-soft-17 \
-    --double-after-split \
-    --resplit-aces \
-    --strategy BJ_basicStrategy.json \
-    --database simulation.db \
-    --seed 42
-
-```
-
-### Graphical interface
-
-From source:
-
-```bash
 python -m blackjack
 ```
 
 After installing with `pip install .`, a `blackjack-sim` application launcher is
-registered.  You can create a desktop shortcut to this script so that the GUI
+registered. You can create a desktop shortcut to this script so that the GUI
 opens like any other native app.
 
 ```bash
