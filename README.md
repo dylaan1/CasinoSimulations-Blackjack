@@ -24,6 +24,7 @@ A modular blackjack simulation engine for exploring different strategies and cas
 - **Strategy plug-ins**: point to any JSON basic strategy file; each defines `hard`, `soft`, and `pair` tables mapping player totals and dealer up-cards to actions.
 
 - **Data output**: bankroll history, final summaries, and card distributions stored in SQLite for downstream analysis (e.g., with the included R script).
+- **Test mode**: run simulations without saving results to permanent tables to perform dry runs.
 
 - **GUI**: a Tkinter interface lets you configure rules, run simulations, visualize bankroll progression for any trial via a "Plot Trial" selector, and optionally save or discard results stored in SQLite.
 
@@ -43,6 +44,13 @@ opens like any other native app.
 pip install .
 blackjack-sim  # runs without a console window
 
+```
+
+For a dry run that leaves results only in the temporary tables, pass
+`--test-mode` to the CLI:
+
+```bash
+python -m blackjack --test-mode
 ```
 
 ### Visualization

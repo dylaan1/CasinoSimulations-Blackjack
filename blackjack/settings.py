@@ -20,3 +20,4 @@ class SimulationSettings:
     strategy_file: str = str(DEFAULT_STRATEGY_FILE)
     database: str = "simulation.db"
     seed: int | None = None
+    test_mode: bool = False
