@@ -1,4 +1,7 @@
-from .gui import SimulatorGUI
+try:  # pragma: no cover - fallback for direct execution
+    from .gui import SimulatorGUI
+except ImportError:  # pragma: no cover
+    from gui import SimulatorGUI  # type: ignore
 
 
 def run_gui():

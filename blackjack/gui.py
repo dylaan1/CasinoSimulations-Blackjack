@@ -2,8 +2,13 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from .settings import SimulationSettings
-from .simulator import Simulator
+
+try:  # pragma: no cover - fallback for direct execution
+    from .settings import SimulationSettings
+    from .simulator import Simulator
+except ImportError:  # pragma: no cover
+    from settings import SimulationSettings  # type: ignore
+    from simulator import Simulator  # type: ignore
 
 
 class SimulatorGUI:

@@ -1,8 +1,11 @@
 import argparse
 from pathlib import Path
-
-from .settings import SimulationSettings, DEFAULT_STRATEGY_FILE
-from .simulator import Simulator
+try:  # pragma: no cover - fallback for direct execution
+    from .settings import SimulationSettings, DEFAULT_STRATEGY_FILE
+    from .simulator import Simulator
+except ImportError:  # pragma: no cover
+    from settings import SimulationSettings, DEFAULT_STRATEGY_FILE  # type: ignore
+    from simulator import Simulator  # type: ignore
 
 def parse_args() -> tuple[SimulationSettings, bool]:
     parser = argparse.ArgumentParser(description="Blackjack simulator")

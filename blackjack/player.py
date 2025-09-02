@@ -1,9 +1,15 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
-from .hand import Hand
-from .cards import Shoe
-from .strategy import BasicStrategy
+
+try:  # pragma: no cover - fallback for direct execution
+    from .hand import Hand
+    from .cards import Shoe
+    from .strategy import BasicStrategy
+except ImportError:  # pragma: no cover
+    from hand import Hand  # type: ignore
+    from cards import Shoe  # type: ignore
+    from strategy import BasicStrategy  # type: ignore
 
 @dataclass
 class PlayerSettings:

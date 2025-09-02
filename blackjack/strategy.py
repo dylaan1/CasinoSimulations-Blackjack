@@ -2,7 +2,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict
 import json
-from .hand import Hand
+try:  # pragma: no cover - fallback for direct execution
+    from .hand import Hand
+except ImportError:  # pragma: no cover
+    from hand import Hand  # type: ignore
 
 Action = str  # 'hit', 'stand', 'double', 'split', 'surrender'
 
